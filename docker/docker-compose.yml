@@ -1,0 +1,78 @@
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks:
+    - app-network
+
+services:
+
+  postgres:
+    <<: *service-defaults
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tamyuz_market_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+  redis:
+    <<: *service-defaults
+    image: redis
+    container_name: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/data'
+
+  redisinsight:
+    <<: *service-defaults
+    image: redislabs/redisinsight
+    container_name: redisinsight
+    ports:
+      - '5540:5540'
+    volumes:
+      - redisinsight:/db
+
+  sonarqube:
+    <<: *service-defaults
+    image: 'sonarqube:lts'
+    ports:
+      - "9000:9000"
+    environment:
+      - 'SONAR_FORCEAUTHENTICATION=false'
+
+  tamyuz-market:
+    <<: *service-defaults
+    image: tamyuz-market/tamyuz-market:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: tamyuz-market
+    ports:
+      - "6060:6060"
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m # Example JVM settings
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres
+      - redis
+      - sonarqube
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  redisinsight:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

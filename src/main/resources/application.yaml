@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: tamyuz-market
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tamyuz_market_db
+    username: tamyuz_market_user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    defer-datasource-initialization: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: tamyuz_market
+  flyway:
+    user: tamyuz_market_user
+    password: password
+    schemas: tamyuz_market
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 30000
+            readTimeout: 30000
+            loggerLevel: basic
+
+#circuit breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 10000
+        failure-rate-threshold: 100
+        slow-call-rate-threshold: 100
+        slow-call-duration-threshold: 30s
+        permitted-number-of-calls-in-half-open-state: 99999999
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 30s
+
+server:
+  port: 6060
+  servlet:
+    context-path: /tamyuz-market
+
+jwt:
+  secret: 591c2eda-3ed2-406c-a36e-aae4a812f2dc
+
+order-discount:
+  user: 0
+  premium_user: 10
+  above_500: 5
