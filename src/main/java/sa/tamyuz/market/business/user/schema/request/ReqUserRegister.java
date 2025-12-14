@@ -3,12 +3,10 @@ package sa.tamyuz.market.business.user.schema.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import sa.tamyuz.market.business.user.enums.Role;
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
